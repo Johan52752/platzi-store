@@ -1,26 +1,31 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { connect } from 'react-redux';
 import actions from '../actions';
 import '../styles/components/Checkout.styl';
+import AppContext from '../context/AppContext';
 
 const Checkout = (props) => {
-  const { cart } = props;
+  const { cart } = useContext(AppContext);
+  console.log(cart);
+  const products = [...cart.productsCart];
 
   const handleSumTotal = () => {
     const reducer = (accumulator, currentValue) => accumulator + currentValue.price;
-    const sum = cart.reduce(reducer, 0);
+    const sum = products.reduce(reducer, 0);
     return sum;
   };
 
   const remove = product => () => {
-    props.removeFromCart(product);
+    cart.setProductsCart(products.filter((item) => {
+      return item.id !== product.id;
+    }));
   };
 
   return (
     <div className="Checkout">
       <div className="Checkout-content">
-        {cart.length > 0 ? <h3>Lista de Pedidos:</h3> : <h2>Sin Pedidos</h2>}
-        {cart.map(item => (
+        {products.length > 0 ? <h3>Lista de Pedidos:</h3> : <h2>Sin Pedidos</h2>}
+        {products.map(item => (
           <div className="Checkout-item" key={item.title}>
             <div className="Checkout-element">
               <h4>{item.title}</h4>
@@ -38,7 +43,7 @@ const Checkout = (props) => {
           </div>
         ))}
       </div>
-      {cart.length > 0 && (
+      {products.length > 0 && (
         <div className="Checkout-sidebar">
           <h3>
             {`Precio Total: $ ${handleSumTotal()}`}
@@ -49,14 +54,4 @@ const Checkout = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    cart: state.cart,
-  };
-};
-
-const mapDispatchToProps = {
-  removeFromCart: actions.removeFromCart,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Checkout);
+export default Checkout;

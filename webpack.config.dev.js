@@ -1,10 +1,6 @@
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -50,7 +46,19 @@ module.exports = {
         test: /\.(png|jpg)$/,
         type: 'asset',
       },
+      // {
+      //   test: /\.js$/,
+      //   include: /node_modules\/react-dom/,
+      //   use: ['react-hot-loader/webpack'],
+      // },
     ],
+  },
+  devServer: {
+    historyApiFallback: true,
+    contentBase: path.join(__dirname, 'dist'),
+    compress: true,
+    port: 3005,
+    // hot: true,
   },
   plugins: [
     new HtmlWebPackPlugin({
@@ -60,47 +68,10 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'assets/[name].css',
     }),
-    new CleanWebpackPlugin(),
   ],
   optimization: {
     splitChunks: {
       chunks: 'all',
-      cacheGroups: {
-        default: false,
-        commons: {
-          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-          chunks: 'all',
-          name: 'commons',
-          filename: 'assets/common.[chunkhash].js',
-          reuseExistingChunk: true,
-          enforce: true,
-          priority: 20,
-        },
-        vendors: {
-          test: /[\\/]node_modules[\\/]/,
-          chunks: 'all',
-          name: 'vendors',
-          filename: 'assets/vendor.[chunkhash].js',
-          reuseExistingChunk: true,
-          enforce: true,
-          priority: 10,
-        },
-      },
     },
-    minimize: true,
-    minimizer: [
-      new CssMinimizerPlugin(),
-      new TerserPlugin(),
-      new ImageMinimizerPlugin({
-        minimizer: {
-          implementation: ImageMinimizerPlugin.imageminMinify,
-          options: {
-            plugins: [
-              ['optipng', { optimizationLevel: 5 }],
-            ],
-          },
-        },
-      }),
-    ],
   },
 };
